@@ -144,7 +144,7 @@ io.on('connection', function(client){
 	    session.name = user ? user.screen_name : client.sessionId;
 	    var screen_name = session.name;
 	    console.log(sys.inspect(cookie), connectSessionId, sys.inspect(connectSessions), sys.inspect(connectSession), sys.inspect(session));
-	    return screen_name
+	    return screen_name;
 	}
 
 	client.send({ buffer: buffer });
