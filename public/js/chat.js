@@ -1,15 +1,17 @@
 function message(obj){
-  var el = document.createElement('p');
-  if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
-  else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
-  document.getElementById('chat').appendChild(el);
-  document.getElementById('chat').scrollTop = 1000000;
+  if (obj.type === 'message') {
+    var el = document.createElement('p');
+    if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
+    else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
+    document.getElementById('chat').appendChild(el);
+    document.getElementById('chat').scrollTop = 1000000;
+  }
 }
 
 function send(){
   var val = document.getElementById('text').value;
   socket.send({type: "text", text: val});
-  message({ message: ['you', val] });
+  message({ type: 'message', message: ['you', val] });
   document.getElementById('text').value = '';
 }
 
@@ -30,3 +32,8 @@ function onMessage(obj) {
 
 socket.connect();
 socket.on('message', onMessage);
+
+$('#form').submit(function(e) {
+  send();
+  e.preventDefault();
+});

@@ -7,10 +7,9 @@
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
-    <script src="/js/chat.js"></script>
     <h1>Sample chat client</h1>
     <div id="chat"><p>Connecting...</p></div>
-    <form id="form" onsubmit="send(); return false">
+    <form id="form">
       <input type="text" autocomplete="off" id="text"><input type="submit" value="Send">
     </form>
     
@@ -24,6 +23,7 @@
       #form input[type=submit]:hover { background: #A2A2A2; }
       #form input[type=submit]:active { position: relative; top: 2px; }
     </style>
-    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script src="/js/chat.js"></script>
   </body>
 </html>

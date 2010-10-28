@@ -152,7 +152,10 @@ io.on('connection', function(client){
 
 	client.on('message', function(message){
 		    if (message.type === 'text') {
-		      var msg = { message: [name(), message.text] };
+		      var msg = {
+			type: 'message', 
+			message: [name(), message.text]
+		      };
 		      buffer.push(msg);
 		      if (buffer.length > 15) buffer.shift();
 		      client.broadcast(msg);
