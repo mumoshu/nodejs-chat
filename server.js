@@ -130,7 +130,13 @@ var io = socketio.listen(app),
 io.on('connection', function(client){
 	sys.log(sys.inspect(client));
 	function name() {
-	    var cookie = cookieToObject(client.request.headers.cookie);
+	    var headers = client.request.headers;
+
+	    if (!headers) {
+		return client.sessionId;
+	    }
+
+	    var cookie = cookieToObject(headers.cookie);
 	    var connectSessionId = cookie['connect.sid'];
 	    var session = {};
 	    var connectSession = connectSessions[connectSessionId];
