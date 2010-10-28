@@ -5,7 +5,32 @@ function message(obj){
     else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
     document.getElementById('chat').appendChild(el);
     document.getElementById('chat').scrollTop = 1000000;
+  } else if (obj.type == 'pointer') {
+    handlePointerMessage(obj);
   }
+}
+
+var pointers = {};
+
+function handlePointerMessage(msg) {
+  console.log('handlePointerMessage', msg);
+  var div = $('<div></div>');
+  var h1 = $('<h1></h1>');
+  var img = $('<img></img>');
+  div.addClass('pointer');
+  div.css('top', msg.y);
+  div.css('left', msg.x);
+  if (msg.profile_image_url){
+    img.attr('src', msg.profile_image_url);
+  }
+  h1.text(msg.screen_name);
+  div.append(h1).append(img);
+  $(document.body).append(div);
+  var p = pointers[msg.session_id];
+  if (p) {
+    p.remove();
+  }
+  pointers[msg.session_id] = div;
 }
 
 function send(){
@@ -36,4 +61,19 @@ socket.on('message', onMessage);
 $('#form').submit(function(e) {
   send();
   e.preventDefault();
+});
+
+var interval = 1000;
+var lastSentAt = new Date - interval;
+
+$(document).mousemove(function(e) {
+  if (new Date - lastSentAt > interval) {
+    var message = {
+      type: "pointer",
+      x: e.pageX,
+      y: e.pageY
+    };
+    socket.send(message);
+    lastSentAt = new Date;
+  }
 });

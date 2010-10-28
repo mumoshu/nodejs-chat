@@ -129,11 +129,15 @@ var io = socketio.listen(app),
 		
 io.on('connection', function(client){
 	sys.log(sys.inspect(client));
-	function name() {
+	function user() {
+	    var defaultValue = {
+	      screen_name: client.sessionId,
+	      profile_image_url: ''
+	    };
 	    var headers = client.request.headers;
 
 	    if (!headers) {
-		return client.sessionId;
+		return defaultValue;
 	    }
 
 	    var cookie = cookieToObject(headers.cookie);
@@ -141,29 +145,40 @@ io.on('connection', function(client){
 	    var session = {};
 	    var connectSession = connectSessions[connectSessionId];
 	    var user = connectSession ? connectSession.user : null;
-	    session.name = user ? user.screen_name : client.sessionId;
-	    var screen_name = session.name;
-	    console.log(sys.inspect(cookie), connectSessionId, sys.inspect(connectSessions), sys.inspect(connectSession), sys.inspect(session));
-	    return screen_name;
+	    return user ? user : defaultValue;
 	}
 
 	client.send({ buffer: buffer });
-	client.broadcast({ announcement: name() + ' connected' });
+	client.broadcast({ announcement: user().screen_name + ' connected' });
+
+	function broadcast(msg) {
+	  buffer.push(msg);
+	  if (buffer.length > 15) buffer.shift();
+	  client.broadcast(msg);
+	}
 
 	client.on('message', function(message){
 		    if (message.type === 'text') {
 		      var msg = {
 			type: 'message', 
-			message: [name(), message.text]
+			message: [user().screen_name, message.text]
 		      };
-		      buffer.push(msg);
-		      if (buffer.length > 15) buffer.shift();
-		      client.broadcast(msg);
+		      broadcast(msg);
+		    } else if (message.type === 'pointer') {
+		      var msg = {
+			type: 'pointer',
+			screen_name: user().screen_name,
+			profile_image_url: user().profile_image_url,
+			x: message.x,
+			y: message.y,
+			session_id: client.sessionId
+		      };
+		      broadcast(msg);
 		    }
 	});
 
 	client.on('disconnect', function(){
-		client.broadcast({ announcement: name() + ' disconnected' });
+		client.broadcast({ announcement: user().screen_name + ' disconnected' });
 	});
 });
 
