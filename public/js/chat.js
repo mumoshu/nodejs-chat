@@ -8,7 +8,7 @@ function message(obj){
 
 function send(){
   var val = document.getElementById('text').value;
-  socket.send(val);
+  socket.send({type: "text", text: val});
   message({ message: ['you', val] });
   document.getElementById('text').value = '';
 }

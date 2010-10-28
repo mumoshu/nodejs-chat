@@ -151,10 +151,12 @@ io.on('connection', function(client){
 	client.broadcast({ announcement: name() + ' connected' });
 
 	client.on('message', function(message){
-		var msg = { message: [name(), message] };
-		buffer.push(msg);
-		if (buffer.length > 15) buffer.shift();
-		client.broadcast(msg);
+		    if (message.type === 'text') {
+		      var msg = { message: [name(), message.text] };
+		      buffer.push(msg);
+		      if (buffer.length > 15) buffer.shift();
+		      client.broadcast(msg);
+		    }
 	});
 
 	client.on('disconnect', function(){
