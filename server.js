@@ -93,6 +93,14 @@ function authorized(req, res) {
 	});
 }
 
+app.get('/connect_sessions', function(req, res) {
+  res.send(sys.inspect(connectSessions));
+});
+
+app.get('/socketio_sessions', function(req, res) {
+  res.send(sys.inspect(sessions));
+});
+
 var connectSessions = {};
 
 /**
@@ -116,20 +124,46 @@ app.listen(8080);
 // socket.io, I choose you
 // simplest chat application evar
 var io = socketio.listen(app),
-    buffer = [];
+    buffer = [],
+    sessions = {};
 		
 io.on('connection', function(client){
+	sys.log(sys.inspect(client));
+	function name() {
+	    var cookie = cookieToObject(client.request.headers.cookie);
+	    var connectSessionId = cookie['connect.sid'];
+	    var session = {};
+	    var connectSession = connectSessions[connectSessionId];
+	    var user = connectSession ? connectSession.user : null;
+	    session.name = user ? user.screen_name : client.sessionId;
+	    var screen_name = session.name;
+	    console.log(sys.inspect(cookie), connectSessionId, sys.inspect(connectSessions), sys.inspect(connectSession), sys.inspect(session));
+	    return screen_name
+	}
+
 	client.send({ buffer: buffer });
-	client.broadcast({ announcement: client.sessionId + ' connected' });
+	client.broadcast({ announcement: name() + ' connected' });
 
 	client.on('message', function(message){
-		var msg = { message: [client.sessionId, message] };
+		var msg = { message: [name(), message] };
 		buffer.push(msg);
 		if (buffer.length > 15) buffer.shift();
 		client.broadcast(msg);
 	});
 
 	client.on('disconnect', function(){
-		client.broadcast({ announcement: client.sessionId + ' disconnected' });
+		client.broadcast({ announcement: name() + ' disconnected' });
 	});
 });
+
+function cookieToObject(cookie) {
+  var obj = {};
+  var tokens = cookie.split("; ");
+
+  for (var i=0; i<tokens.length; i++) {
+    var token = tokens[i];
+    var parts = token.split("=");
+    obj[parts[0]] = parts[1];
+  }
+  return obj;
+}
