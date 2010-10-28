@@ -128,7 +128,6 @@ var io = socketio.listen(app),
     sessions = {};
 		
 io.on('connection', function(client){
-	sys.log(sys.inspect(client));
 	function user() {
 	    var defaultValue = {
 	      screen_name: client.sessionId,
@@ -137,10 +136,12 @@ io.on('connection', function(client){
 	    var headers = client.request.headers;
 
 	    if (!headers) {
+	        sys.log('headers not found', sys.inspect(client.request));
 		return defaultValue;
 	    }
-
+            sessions[client.sessionId] = client;
 	    var cookie = cookieToObject(headers.cookie);
+	    client.cookie = sys.inspect(cookie);
 	    var connectSessionId = cookie['connect.sid'];
 	    var session = {};
 	    var connectSession = connectSessions[connectSessionId];
@@ -189,7 +190,7 @@ function cookieToObject(cookie) {
   for (var i=0; i<tokens.length; i++) {
     var token = tokens[i];
     var parts = token.split("=");
-    obj[parts[0]] = parts[1];
+    obj[parts[0]] = decodeURIComponent(parts[1]);
   }
   return obj;
 }
