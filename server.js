@@ -133,8 +133,12 @@ io.on('connection', function(client){
 	      screen_name: client.sessionId,
 	      profile_image_url: ''
 	    };
-	    var headers = client.request.headers;
-
+	    var request = client.request;
+	    if (!request) {
+		sys.log('request not found');
+		return defaultValue;
+	    }
+	    var headers = request.headers;
 	    if (!headers) {
 	        sys.log('headers not found', sys.inspect(client.request));
 		return defaultValue;

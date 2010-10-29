@@ -1,13 +1,36 @@
 function message(obj){
   if (obj.type === 'message') {
-    var el = document.createElement('p');
-    if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
-    else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
-    document.getElementById('chat').appendChild(el);
-    document.getElementById('chat').scrollTop = 1000000;
+      var el = null;
+      if (obj.message =~ /http:.+\.(png|gif|jpg)/) {
+	  el = createPictureMessage(obj);
+      } else {
+	  el = createTextMessage(obj);
+      }
+      document.getElementById('chat').appendChild(el);
+      document.getElementById('chat').scrollTop = 1000000;
   } else if (obj.type == 'pointer') {
     handlePointerMessage(obj);
   }
+}
+
+function createTextMessage(obj) {
+    var el = document.createElement('p');
+    if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
+    else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
+    return el;
+}
+
+function createPictureMessage(obj) {
+    var e = document.createElement('p');
+    var d = docuemnt.createElement('d');
+    var b = document.createElement('b');
+    var img = document.createElement('img');
+    img.src = obj.message[1];
+    b.innerHTML = obj.message[0];
+    d.appendChild(b);
+    e.appendChild(d);
+    e.appendChild(img);
+    return e;
 }
 
 var pointers = {};
