@@ -174,7 +174,7 @@ io.on('connection', function(client){
 			y: message.y,
 			session_id: client.sessionId
 		      };
-		      broadcast(msg);
+		      //broadcast(msg);
 		    }
 	});
 
